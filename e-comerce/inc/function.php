@@ -150,19 +150,22 @@ function ConnectAdmin($data) {
 
   // Get the email and password from the submitted form data
   $email = $data['email'];
-  $mp = md5($data['mp']);
-
+  $mpCrypted = md5($data['mp']);
+  // return $mp;
   // Prepare a SQL query to select the user from the database
-  $requette = "SELECT * FROM administrateur WHERE email = '$email' AND mp = '$mp'";
+  $requette = "SELECT * FROM administrateur WHERE email = '$email'";
 
   //  execute it with the email and password
   $resultat = $conn->query($requette);
 
   // Fetch the user from the result set
   $user = $resultat->fetch();
+  if(!is_null($user) && $mpCrypted== $user["mp"]){
 
   // Return the user array
   return $user;
+}
+return false;
 }
 function getAllPaniers(){
  $conn = connect();
@@ -190,52 +193,50 @@ function changerEtatPaniers($data) {
   $conn = connect();
   $requete = "UPDATE paniers SET etat = :etat_id WHERE id = :id";
   $statement = $conn->prepare($requete);
-  $statement->bindParam(':etat_id', $data['etat_id']);
-  $statement->bindParam(':id', $data['etat']);
+  $statement->bindParam(':etat_id', $data['etat_id']); // Update parameter name to match
+  $statement->bindParam(':id', $data['id']); // Update parameter name to match
   $resultat = $statement->execute();
 }
-function getPaniersByEtat($paniers,$etat){
 
-  $paniersEtat=array();
-  foreach($paniers as $p){
-    if($p['etat']== $etat){
-      array_push($paniersEtat,$p);
-  
+function getPaniersByEtat($paniers, $etat) {
+  $paniersEtat = array();
+  foreach ($paniers as $panier) { // Update variable name for clarity
+    if ($panier['etat'] == $etat) {
+      array_push($paniersEtat, $panier);
     }
   }
-    return $paniersEtat ;
+  return $paniersEtat;
 }
-
 function EditAdmin($data) {
   $conn = connect();
   
   // Check if 'mp' field is not empty
-  if ($data['mp'] != "") {
-      // Prepare SQL statement with placeholders
-      $requette = "UPDATE administrateur SET  email=$data['email'], mp=md5($data['mp']), WHERE id=$data['id_admin']";
-      
-      // Prepare and bind parameters
-      $stmt = $conn->prepare($requette);
-      
-      // Execute the statement
-      $stmt->execute();
-      
-      // Check if the update was successful
-      if ($stmt->affected_rows> 0) {
-          echo "Admin updated successfully.";
-      } else {
-          echo "Failed to update admin.";
+  if (!empty($data['mp'])) {
+      try {
+          // Prepare SQL statement with placeholders
+          $requete = "UPDATE administrateur SET email = ?, mp = MD5(?) WHERE id = ?";
+          $stmt = $conn->prepare($requete);
+          
+          // Execute the statement with sanitized inputs
+          $stmt->execute([$data['email'], $data['mp'], $data['id_admin']]);
+          
+          // Check if the update was successful
+          if ($stmt->rowCount() > 0) {
+              echo "Admin updated successfully.";
+          } else {
+              echo "Failed to update admin.";
+          }
+      } catch (PDOException $e) {
+          echo "Error: " . $e->getMessage();
       }
-      
-      // Close statement
-      $stmt->close();
   } else {
       echo "Password cannot be empty.";
   }
   
   // Close connection
-  $conn->close();
+  $conn = null;
 }
+
 
 
 

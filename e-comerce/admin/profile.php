@@ -1,4 +1,5 @@
 <?php
+ include ('C:\laragon\www\e-comerce\inc\function.php');
 $servername = "localhost" ;  
 $dbuser = "root" ;
 $dbpassword = "" ;
@@ -11,6 +12,7 @@ try {
  } catch(PDOException $e) {
    echo "Connection failed: " . $e->getMessage();
  }
+ 
 
  session_start();
  if(isset ($_POST['btnEdit'])){
@@ -19,6 +21,7 @@ try {
 
 
  }
+
  ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
@@ -57,29 +60,41 @@ try {
         include './template/navigation.php';
        ?>
 
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">profile</h1>
-            <div>
-              admin
-          </div>
-           </div>
-           <div class="container">
-           <h1>Nom: <span class="text-primary">admin</h1></span>
-           <h1>email: <span class="text-primary"><?php
-                 echo $_SESSION['email'];
-                 ?></h1></span>
-           <a data-toggle="modal" data-target="#profileEdit"class="btn btn-primary">modifier</a>
-          </div>
+<?php
+// Start or resume the session
+session_start();
 
-          
+// Check if the user is logged in and retrieve their email from the database
+if (isset($_SESSION['user_id'])) {
+    // Here, you would typically query the database to fetch the email associated with the user_id
+    // Replace 'your_database_connection_code' with your actual database connection code
+    $user_id = $_SESSION['user_id'];
+    $email = ''; // Initialize email variable
+    // Your database query to fetch email associated with $user_id goes here
+    // Example: $email = query_database_to_get_email($user_id);
 
-        </main>
-      </div>
+    // Set the email in the session variable
+    $_SESSION['email'] = $email;
+}
+?>
+
+<main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">profile</h1>
+        <div>
+            admin
+        </div>
     </div>
+    <div class="container">
+        <h1>Nom: <span class="text-primary">admin</span></h1>
+        <h1>Email: <span class="text-primary"><?php echo isset($_SESSION['email']) ? $_SESSION['email'] : 'N/A'; ?></span></h1>
+        <a data-toggle="modal" data-target="#profileEdit" class="btn btn-primary">modifier</a>
+    </div>
+</main>
+
     <!-- Modal modfie -->
-<div class="modal fade" id="profileEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" >
+    <div class="modal fade" id="profileEdit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">Modifier profile</h5>
@@ -88,21 +103,23 @@ try {
         </button>
       </div>
       <div class="modal-body">
-        <form action="<?php $_SERVER['PHP_SELF']?>" method="post">
-          <input type="hidden"value="<?php echo $_SESSION['id'];?>"name="id_admin">
-          <div class="from-group"><input type="email" name="email" value="<?php echo $_SESSION['email'];?>" class="form-control"></div>
-          <div class="from-group"><input type="password" name="mp" value="" class="form-control">
-</div>
-           
-
+        <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+          <input type="hidden" value="<?php echo isset($_SESSION['id_admin']) ? $_SESSION['id_admin'] : ''; ?>" name="id_admin">
+          <div class="form-group">
+            <input type="email" name="email" value="<?php echo isset($_SESSION['email']) ? $_SESSION['email'] : ''; ?>" class="form-control">
+          </div>
+          <div class="form-group">
+            <input type="password" name="mp" value="" class="form-control">
+          </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" name="btnEdit"class="btn btn-primary">modifier</button>
+        <button type="submit" name="btnEdit" class="btn btn-primary">modifier</button>
       </div>
-      </from>
+      </form>
     </div>
   </div>
 </div>
+
 
     <!-- Bootstrap core JavaScript
     ================================================== -->

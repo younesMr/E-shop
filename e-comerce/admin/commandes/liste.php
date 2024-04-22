@@ -1,31 +1,25 @@
 <?php
+session_start();
+include "../../inc/function.php";
 
- session_start();
- include "../../inc/function.php";
- if (isset($_POST['btnSubmit'])){    //changer etat panier
-  changerEtatPaniers($_POST);
-  
+// Change the state of the panier if the submit button is clicked
+if (isset($_POST['btnSubmit'])) {
+    changerEtatPaniers($_POST);
+}
 
- } 
- $commandes = getAllCommandes();
- $paniers = getAllPaniers();
+// Get all commandes and paniers
+$commandes = getAllCommandes();
+$paniers = getAllPaniers();
 
-
-
- if (isset($_POST['btnSearch'])){ 
-   // echo $_POST['etat'];
-   //exist;
-   if($_POST['etat']=="tout"){
-    $paniers = getAllPaniers();
-
-   }else{
-  
-    $paniers =  getPaniersByEtat($paniers,$_POST['etat']);
+// Filter paniers by state if the search button is clicked
+if (isset($_POST['btnSearch'])) {
+    $etat = $_POST['etat'];
+    if ($etat != "tout") {
+        $paniers = getPaniersByEtat($paniers, $etat);
     }
- }
-
-
+}
 ?>
+
 <!doctype html >
 
 <html lang="en" data-bs-theme="dark">
